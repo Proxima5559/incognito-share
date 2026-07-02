@@ -11,7 +11,7 @@ export interface JwtPayload {
 }
 
 export class TokenService {
-  private static get secret(): string {
+  private static get accessTokenSecret(): string {
     const secret = config.jwtSecret;
 
     if (!secret) {
@@ -20,6 +20,17 @@ export class TokenService {
 
     return secret;
   }
+
+   private static get refreshTokenSecret(): string {
+    const secret = config.jwtRefreshSecret;
+
+    if (!secret) {
+      throw AppError.Internal('JWT_REFRESH_SECRET is not configured.');
+    }
+
+    return secret;
+  }
+
 
   private static buildPayload(user: HydratedDocument<IUser>): JwtPayload {
     return {
@@ -30,13 +41,13 @@ export class TokenService {
   }
 
   static generateAccessToken(user: HydratedDocument<IUser>): string {
-    return jwt.sign(this.buildPayload(user), this.secret, {
+    return jwt.sign(this.buildPayload(user), this.accessTokenSecret, {
       expiresIn: config.jwtExpiresIn ?? '15m',
     });
   }
 
   static generateRefreshToken(user: HydratedDocument<IUser>): string {
-    return jwt.sign(this.buildPayload(user), this.secret, {
+    return jwt.sign(this.buildPayload(user), this.refreshTokenSecret, {
       expiresIn: config.jwtRefreshExpiresIn ?? '7d',
     });
   }
@@ -49,10 +60,10 @@ export class TokenService {
   }
 
   static verifyAccessToken(token: string): JwtPayload {
-    return jwt.verify(token, this.secret) as JwtPayload;
+    return jwt.verify(token, this.accessTokenSecret) as JwtPayload;
   }
 
   static verifyRefreshToken(token: string): JwtPayload {
-    return jwt.verify(token, this.secret) as JwtPayload;
+    return jwt.verify(token, this.refreshTokenSecret) as JwtPayload;
   }
 }

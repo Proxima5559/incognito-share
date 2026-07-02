@@ -14,6 +14,7 @@ const configSchema = z.object({
   jwtSecret: z.string({ error: "JWT_SECRET is required" }),
   jwtExpiresIn: z.string().min(1) as z.ZodType<jwt.SignOptions['expiresIn']>,
   jwtRefreshExpiresIn: z.string().min(1).default('7d') as z.ZodType<jwt.SignOptions['expiresIn']>,
+  jwtRefreshSecret: z.string({ error: "JWT_REFRESH_SECRET is required" }),
 });
 
 type AppConfig = z.infer<typeof configSchema>;
@@ -26,6 +27,7 @@ const parsed = configSchema.safeParse({
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '15m',
   jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+  jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
 });
 
 if (!parsed.success) {
