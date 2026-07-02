@@ -1,0 +1,16 @@
+import { Request, Response, NextFunction } from 'express';
+import { AppError } from '../utils/appError.js';
+
+export const errorHandler = (
+  err: Error, 
+  req: Request, 
+  res: Response, 
+  next: NextFunction
+): any => {
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({ error: err.message });
+  }
+
+  console.error('💥 SYSTEM ERROR:', err);
+  return res.status(500).json({ error: 'Something went completely wrong, bro.' });
+};
